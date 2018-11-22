@@ -1,6 +1,15 @@
 <template>
   <div>
     <h2>Articles</h2>
+    <form class="mb-4" @submit.prevent="addArticle">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Title" v-model="article.title">
+      </div>
+      <div class="form-group">
+        <textarea class="form-control" placeholder="Body text" v-model="article.body"></textarea>
+      </div>
+      <button class="btn btn-success" type="submit">Save</button>
+    </form>
     <ul class="pagination">
       <li :class="[{ disabled: !pagination.prev_page_url }]" class="page-item">
         <a href="#" class="page-link" @click="fetchArticles(pagination.prev_page_url)">Prev</a>
@@ -74,6 +83,27 @@ export default {
             this.fetchArticles();
           })
           .catch(err => console.log(err));
+      }
+    },
+    addArticle() {
+      if (this.edit === false) {
+        // Add
+        fetch("api/article", {
+          method: "post",
+          body: JSON.stringify(this.article),
+          headers: {
+            "content-type": "application/json"
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            this.article.title = "";
+            this.article.body = "";
+            this.fetchArticles();
+          })
+          .catch(err => console.log(err));
+      } else {
+        // Update
       }
     }
   }
