@@ -27,7 +27,10 @@
       <h3>{{ article.title }}</h3>
       <p>{{ article.body }}</p>
       <hr>
-      <button class="btn btn-danger" @click="onDelete(article.id)">Delete</button>
+      <div class="d-flex">
+        <button class="btn btn-danger" @click="onDelete(article.id)">Delete</button>
+        <button class="btn btn-warning ml-2" @click="onEdit(article)">Edit</button>
+      </div>
     </div>
   </div>
 </template>
@@ -104,7 +107,29 @@ export default {
           .catch(err => console.log(err));
       } else {
         // Update
+        fetch("api/article", {
+          method: "put",
+          body: JSON.stringify(this.article),
+          headers: {
+            "content-type": "application/json"
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            this.article.title = "";
+            this.article.body = "";
+            alert("Article updated!");
+            this.fetchArticles();
+          })
+          .catch(err => console.log(err));
       }
+    },
+    onEdit(article) {
+      this.edit = true;
+      this.article.id = article.id;
+      this.article.article_id = article.id;
+      this.article.title = article.title;
+      this.article.body = article.body;
     }
   }
 };
