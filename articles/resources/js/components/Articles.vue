@@ -1,6 +1,19 @@
 <template>
   <div>
     <h2>Articles</h2>
+    <ul class="pagination">
+      <li :class="[{ disabled: !pagination.prev_page_url }]" class="page-item">
+        <a href="#" class="page-link" @click="fetchArticles(pagination.prev_page_url)">Prev</a>
+      </li>
+
+    <li class="page-item disabled">
+      <a href="#" class="page-link text-dark">Page {{ pagination.current_page }} of {{ pagination.last_page }}</a>
+    </li>
+
+      <li :class="[{ disabled: !pagination.next_page_url }]" class="page-item">
+        <a href="#" class="page-link" @click="fetchArticles(pagination.next_page_url)">Next</a>
+      </li>
+    </ul>
     <div class="card card-body mb-3" v-for="article in articles" :key="article.id">
       <h3>{{ article.title }}</h3>
       <p>{{ article.body }}</p>
@@ -27,12 +40,26 @@ export default {
     this.fetchArticles();
   },
   methods: {
-    fetchArticles() {
-      fetch("api/articles")
+    fetchArticles(page_url) {
+      let vm = this;
+      page_url = page_url || "/api/articles";
+      fetch(page_url)
         .then(res => res.json())
         .then(res => {
           this.articles = res.data;
-        });
+          vm.makePagination(res.meta, res.links);
+        })
+        .catch(err => console.log(err));
+    },
+    makePagination(meta, links) {
+      let pagination = {
+        current_page: meta.current_page,
+        last_page: meta.last_page,
+        next_page_url: links.next,
+        prev_page_url: links.prev
+      };
+
+      this.pagination = pagination;
     }
   }
 };
